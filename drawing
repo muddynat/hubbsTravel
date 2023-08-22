@@ -1,0 +1,35 @@
+#R Script to randomly draw winners for ASIH Clark Hubbs Student Travel Award#
+#Written by James Erdmann, May 2023
+
+#####Setup#####
+
+setwd('Downloads/jmih/2023/ASIH Hubbs Travel Award') #directory with the spreadsheet of applicants. should be saved as .csv file
+
+raffle <- read.csv('2023 ASIH Hubbs Travel award raffle.csv') #load the csv file into R. Use read_xlsx() from package readxl if using an excel spreadsheet. Critically, here, there is a column named 'category' with a 3-level factor consisting of: Herp, Ich, and Int (for the award categories) and a column named 'name' for the name of the applicant
+
+winners <- as.data.frame(matrix(0,ncol = ncol(raffle))) #make a dataframe to populate the winners
+names(winners) <- colnames(raffle) #copy the column names from the spreadsheet to the winners dataframe
+
+#####Drawing#####
+
+set.seed(42) #set seed for repeatability (if testing out)
+
+winners <- raffle[sample(which(raffle$category == 'Herp'), 7),] #draw 7 herp winners
+
+rbind(winners, raffle[sample(which(raffle$category == 'Ich'), 7),]) #draw 7 fish winners
+
+rbind(winners, raffle[sample(which(raffle$category == 'Int'), 2),]) #draw 2 intercontinental winners
+
+#####Redrawing#####
+
+#ineligible winners (no current membership) need to be redrawn. The simplest way to do this is to re-draw from whichever category needs it, and visually skip any resampled names, choosing however many need to be replaced, starting from the top.
+
+winners <- winners[-which(winners$name %in% c('Jim Rebel', 'Aisha Noncompliant', 'Gabriela Recalcitrant')),] #remove the ineligible names
+
+raffle[sample(which(raffle$category == 'Herp'), 3),] #Redraw a set of Herp winners, visually compare lists, check new possible winners
+
+rbind(winners, raffle[which(raffle$name %in% c('Luigi Angel', 'Shawnda Dutiful', 'Ashley Disciplined')),]) #add new winners to the list
+
+#####Finishing#####
+
+write.csv(winners,'winners.csv') #write the final list to a file, which you can send out in an email
